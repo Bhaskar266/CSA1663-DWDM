@@ -1,19 +1,32 @@
-data <- c(200, 300, 400, 600, 1000)
+data <- c(11, 13, 13, 15, 15, 16, 19, 20, 20, 20, 21, 21, 22, 23, 24, 30, 40, 45, 45, 45, 71, 72, 73, 75)
 
-# (a) Min-Max Normalization
-min_max_normalize <- function(x, new_min, new_max) {
-  (x - min(x)) / (max(x) - min(x)) * (new_max - new_min) + new_min
-}
-normalized_min_max <- min_max_normalize(data, 0, 1)
+# Number of bins
+num_bins <- 3
 
-# Output the results of Min-Max Normalization
-cat("Min-Max Normalized data (min = 0, max = 1):\n", normalized_min_max, "\n")
+# Calculate the bin size
+bin_size <- ceiling(length(data) / num_bins)
 
-# (b) Z-Score Normalization
-z_score_normalize <- function(x) {
-  (x - mean(x)) / sd(x)
-}
-normalized_z_score <- z_score_normalize(data)
+# Split the data into bins
+bins <- split(data, ceiling(seq_along(data) / bin_size))
 
-# Output the results of Z-Score Normalization
-cat("Z-Score Normalized data:\n", normalized_z_score, "\n")
+# (a) Smoothing by bin mean
+smoothed_by_mean <- unlist(lapply(bins, function(bin) rep(mean(bin), length(bin))))
+
+# (b) Smoothing by bin median
+smoothed_by_median <- unlist(lapply(bins, function(bin) rep(median(bin), length(bin))))
+
+# (c) Smoothing by bin boundaries
+smoothed_by_boundaries <- unlist(lapply(bins, function(bin) {
+  min_val <- min(bin)
+  max_val <- max(bin)
+  sapply(bin, function(x) ifelse(abs(x - min_val) < abs(x - max_val), min_val, max_val))
+}))
+
+# Output the results
+cat("Original Data:\n", data, "\n\n")
+
+cat("Smoothing by Bin Mean:\n", smoothed_by_mean, "\n\n")
+
+cat("Smoothing by Bin Median:\n", smoothed_by_median, "\n\n")
+
+cat("Smoothing by Bin Boundaries:\n", smoothed_by_boundaries, "\n")
